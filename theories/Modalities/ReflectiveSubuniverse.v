@@ -147,8 +147,9 @@ Module Type ReflectiveSubuniverses.
   (** We express the universal property using the representation [ooExtendableAlong] of precomposition equivalences.  This has the advantage that it avoids the funext redexes that otherwise infect the theory, thereby simplifying the proofs and proof terms.  We never have to worry about whether we have a path between functions or a homotopy; we use only homotopies, with no need for [ap10] or [path_arrow] to mediate.  Furthermore, the data in [ooExtendableAlong] are all special cases of the induction principle of a modality.  Thus, all the theorems we prove about reflective subuniverses will, when interpreted for a modality (coerced as above to a reflective subuniverse), reduce definitionally to "the way we would have proved them directly for a modality".  *)
 
   Parameter extendable_to_O
-  : forall (O : ReflectiveSubuniverse@{u a}) {P : Type2le@{i a}} {Q : Type2le@{j a}} {Q_inO : In@{u a j j'} O Q},
-      ooExtendableAlong@{i i' j k} (to@{u a i i'} O P) (fun _ => Q).
+    : forall (O : ReflectiveSubuniverse@{u a}) {P : Type2le@{i a}} {Q : Type2le@{j a}} {Q_inO : In@{u a j j'} O Q},
+      ooExtendableAlong@{i i' j k} (to@{u a i i'} O P) (fun _ => let gej := ((fun x => x) : Type@{j'} -> Type@{k}) in
+       Q).
   Check extendable_to_O@{u a i j j' i' k}.
 
 End ReflectiveSubuniverses.
@@ -203,11 +204,14 @@ Global Instance inO_TypeO {O : ReflectiveSubuniverse} (A : Type_ O)
 : In O A
 := A.2.
 
-Definition extendable_to_O (O : ReflectiveSubuniverse@{u a})
-           {P : Type@{i}} {Q : Type@{j}} {Q_inO : In@{u a j j'} O Q}
-: ooExtendableAlong@{i i' j k} (to@{u a i i'} O P) (fun _ => Q)
-  := @extendable_to_O@{u a i j j' i' k} O P Q Q_inO.
+Definition extendable_to_O
+    : forall (O : ReflectiveSubuniverse@{u a}) {P : Type2le@{i a}} {Q : Type2le@{j a}} {Q_inO : In@{u a j j'} O Q},
+      ooExtendableAlong@{i i' j k} (to@{u a i i'} O P) (fun _ =>       let gej := ((fun x => x) : Type@{j'} -> Type@{k}) in Q)
+  := @extendable_to_O@{u a i j j' i' k}.
 
+Check extendable_to_O@{u a i j j' i' k}.
+
+  
 (** We now extract the recursion principle and the restricted induction principles for paths. *)
 Section ORecursion.
   Context {O : ReflectiveSubuniverse}.
@@ -221,7 +225,7 @@ Section ORecursion.
   Definition O_rec_beta {P : Type@{i}} {Q : Type@{j}} {Q_inO : In@{u a j j'} O Q}
              (f : P -> Q) (x : P)
   : O_rec@{i j j' i' k} f (to@{u a i i'} O P x) = f x
-    := (fst (extendable_to_O O 1%nat) f).2 x.
+    := (fst (extendable_to_O@{u a i j j' i' k} O 1%nat) f).2 x.
   Check O_rec_beta@{i j j' i' k}.
 
   Definition O_indpaths {P : Type@{i}} {Q : Type@{j}} {Q_inO : In@{u a j j'} O Q}
@@ -309,8 +313,9 @@ Section Reflective_Subuniverse.
 
     (** In this section, we see that [O] is a functor. *)
 
-    Definition O_functor {A B : Type} (f : A -> B) : O A -> O B
-      := O_rec (to O B o f).
+    Definition O_functor {A : Type@{i}} {B:Type@{j}} (f : A -> B) : O_reflector@{u a i i'} O A -> O_reflector@{u a j j'} O B
+      := O_rec@{u a i j' j' i' k} (to@{u a j j'} O B o f).
+    Check O_functor@{i j i' j' k}.
 
     (** Naturality of [to O] *)
     Definition to_O_natural {A B : Type} (f : A -> B)
@@ -620,7 +625,7 @@ Section Reflective_Subuniverse.
           unfold f, O_functor.
           apply O_rec_postcompose.
         - refine (O_indpaths _ _ _); intros x.
-          unfold f.
+          unfold f. 
           rewrite O_rec_beta. unfold g.
           apply moveR_equiv_V.
           symmetry; apply to_O_natural.
