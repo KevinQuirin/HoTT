@@ -1,4 +1,4 @@
-KQ: This branch contains (a sketch) a a slighlty improved theory of modalities, where we if `A` lives in a universes `i`, we allow `OA` to live in a possibly higher universe `j >= i`.
+KQ: This branch contains (a sketch) of a slighlty changed theory of modalities, where we if a type `A` lives in a universe `i`, we allow its reflection `OA` to live in a possibly higher universe `j >= i`.
 
 
 
