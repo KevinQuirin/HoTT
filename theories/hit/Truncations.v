@@ -25,18 +25,19 @@ However, while we are faking our higher-inductives anyway, we can take some shor
 Module Export Trunc.
 Delimit Scope trunc_scope with trunc.
 
-Private Inductive Trunc (n : trunc_index) (A :Type) : Type :=
+Private Inductive Trunc (n : trunc_index) (A :Type@{i}) : Type@{i'} :=
   tr : A -> Trunc n A.
 Bind Scope trunc_scope with Trunc.
 Arguments tr {n A} a.
 
 (** Without explicit universe parameters, this instance is insufficiently polymorphic. *)
 Global Instance istrunc_truncation (n : trunc_index) (A : Type@{i})
-: IsTrunc@{j} n (Trunc@{i} n A).
+: IsTrunc@{j j'} n (Trunc@{i i'} n A).
 Admitted.
 
-Definition Trunc_ind {n A}
-  (P : Trunc n A -> Type) {Pt : forall aa, IsTrunc n (P aa)}
+Set Printing Universes.
+Definition Trunc_ind {n} {A:Type@{i}}
+  (P : Trunc@{i i'} n A -> Type@{j}) {Pt : forall aa, IsTrunc@{j j'} n (P aa)}
   : (forall a, P (tr a)) -> (forall aa, P aa)
 := (fun f aa => match aa with tr a => fun _ => f a end Pt).
 
@@ -58,51 +59,58 @@ Definition Tr : trunc_index -> Truncation_Modality := idmap.
 
 Module Truncation_Modalities <: Modalities.
 
+  Set Printing Universes.
   Definition Modality : Type2@{u a} := Truncation_Modality.
 
-  Definition O_reflector (n : Modality@{u u'}) A := Trunc n A.
+  Definition O_reflector (n : Modality@{u u'}) (A:Type@{i}) := Trunc@{i i'} n A.
 
-  Definition In (n : Modality@{u u'}) A := IsTrunc n A.
+  Definition In (n : Modality@{u u'}) A := IsTrunc@{i i'} n A.
 
-  Definition O_inO (n : Modality@{u u'}) A : In n (O_reflector n A).
+  Definition O_inO (n : Modality@{u u'}) (A:Type@{i}) : In@{u u' i' i'} n (O_reflector@{u u' i i'} n A).
   Proof.
     unfold In, O_reflector; exact _.
   Defined.
 
-  Definition to (n : Modality@{u u'}) A := @tr n A.
+  Definition to (n : Modality@{u u'}) (A:Type@{i}) := @tr@{i i'} n A.
 
   Definition inO_equiv_inO (n : Modality@{u u'})
-             (A : Type@{i}) (B : Type@{j}) Atr f feq
-  : let gei := ((fun x => x) : Type@{i} -> Type@{k}) in
+             (A : Type@{i}) (B : Type@{j}) (Atr:IsTrunc@{i i'} n A) (f:A -> B) (feq: IsEquiv@{i j} f)
+  : let gei := ((fun x => x) : Type@{i'} -> Type@{k}) in
     let gej := ((fun x => x) : Type@{j} -> Type@{k}) in
-    In n B
+    In@{u u' j i'} n B
   := @trunc_equiv A B f n Atr feq.
 
-  Definition hprop_inO `{Funext} (n : Modality@{u u'}) A
-  : IsHProp (In n A).
+  Definition hprop_inO `{Funext} (n : Modality@{u u'}) (A:Type@{i})
+  : IsTrunc@{i' i'} -1 (In@{u u' i i'} n A).
   Proof.
+    unfold In.
+    
     unfold In; exact _.
   Defined.
 
   Definition O_ind_internal
   : forall (n : Modality@{u a})
-           (A : Type@{i}) (B : O_reflector n A -> Type@{j})
-           (B_inO : forall oa, In@{u a j} n (B oa)),
-      let gei := ((fun x => x) : Type@{i} -> Type@{k}) in
-      let gej := ((fun x => x) : Type@{j} -> Type@{k}) in
-      (forall a, B (to n A a)) -> forall a, B a
+           (A : Type@{i}) (B : O_reflector@{u a i i'} n A -> Type@{j})
+           (B_inO : forall oa, In@{u a j j'} n (B oa)),
+      let gei := ((fun x => x) : Type@{i'} -> Type@{k}) in
+      let gej := ((fun x => x) : Type@{j'} -> Type@{k}) in
+      (forall a, B (to@{u a i i'} n A a)) -> forall a, B a
     := @Trunc_ind.
 
-  Definition O_ind_beta_internal (n : Modality@{u u'})
-             A B Btr f a
-  : O_ind_internal n A B Btr f (to n A a) = f a
+  Definition O_ind_beta_internal (n : Modality@{u a})
+             (A : Type@{i}) (B : O_reflector@{u a i i'} n A -> Type@{j})
+             (B_inO : forall oa, In@{u a j j'} n (B oa)) f a
+  : O_ind_internal n A B B_inO f (to n A a) = f a
     := 1.
 
   Definition minO_paths (n : Modality@{u a})
-             (A : Type@{i}) (Atr : In@{u a i} n A) (a a' : A)
-  : In@{u a i} n (a = a').
+             (A : Type@{i}) (Atr : In@{u a i i'} n A) (a a' : A)
+  : In@{u a i i'} n (a = a').
   Proof.
-    unfold In in *; exact _.
+    unfold In in *.
+    refine (@istrunc_paths@{i i'} A n _ a a').
+    
+    
   Defined.
 
 End Truncation_Modalities.

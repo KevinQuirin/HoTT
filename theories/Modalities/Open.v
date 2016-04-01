@@ -23,27 +23,27 @@ Module OpenModalities_easy <: EasyModalities.
 
   Definition Modality : Type@{u} := Open_Modality@{a}.
 
-  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i}
+  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i'}
     := fun fU X => unOp fU -> X.
 
-  Definition to (O : Modality@{u a}) (T : Type@{i}) : T -> O_reflector@{u a i} O T
+  Definition to (O : Modality@{u a}) (T : Type@{i}) : T -> O_reflector@{u a i i'} O T
     := fun x u => x.
 
   Definition O_indO (O : Modality@{u a}) (A : Type@{i})
-             (B : O_reflector O A -> Type@{j})
-             (f : forall a, O_reflector@{u a j} O (B (to@{u a i} O A a)))
-    : forall z, O_reflector@{u a j} O (B z).
+             (B : O_reflector@{u a i i'} O A -> Type@{j})
+             (f : forall a, O_reflector@{u a j j'} O (B (to@{u a i i'} O A a)))
+    : forall z, O_reflector@{u a j j'} O (B z).
   Proof.
     intros z u; pose (funext_Op O).
-    refine (transport@{i j} B _ (f (z u) u)).
+    refine (transport@{i' j} B _ (f (z u) u)).
     apply path_arrow; intros u'.
     unfold to; apply ap; apply path_ishprop.
   Defined.
 
   Definition O_indO_beta (O : Modality@{u a}) (A : Type@{i})
-             (B : O_reflector@{u a i} O A -> Type@{j})
-             (f : forall a, O_reflector@{u a j} O (B (to O A a))) (a : A)
-  : O_indO O A B f (to O A a) = f a.
+             (B : O_reflector@{u a i i'} O A -> Type@{j})
+             (f : forall a, O_reflector@{u a j j'} O (B (to@{u a i i'} O A a))) (a : A)
+  : O_indO@{u a i i' j j'} O A B f (to@{u a i i'} O A a) = f a.
   Proof.
     pose (funext_Op O); apply path_arrow; intros u.
     transitivity (transport B 1 (f a u));
@@ -51,22 +51,23 @@ Module OpenModalities_easy <: EasyModalities.
     apply (ap (fun p => transport B p (f a u))).
     transitivity (path_arrow (fun _ => a) (fun _ => a) (@ap10 (unOp O) _ _ _ 1));
       auto with path_hints.
-    * apply ap@{i i}.
+    
+    * apply ap@{i' i'}.
       apply path_forall; intros u'.
       apply ap_const.
     * apply eta_path_arrow.
   Defined.
 
   Definition minO_pathsO (O : Modality@{u a}) (A : Type@{i})
-             (z z' : O_reflector@{u a i} O A)
-  : IsEquiv@{i i} (to O (z = z')).
+             (z z' : O_reflector@{u a i i'} O A)
+  : IsEquiv@{i' i''} (to@{u a i' i''} O (z = z')).
   Proof.
     pose (fs := funext_Op O); refine (isequiv_adjointify _ _ _ _).
     * intros f; apply path_arrow; intros u.
       exact (ap10 (f u) u).
     * intros f; apply path_arrow; intros u.
       transitivity (path_arrow z z' (ap10 (f u))).
-      + unfold to; apply ap@{i i}.
+      + unfold to; apply ap@{i' i'}.
         apply path_forall; intros u'.
         apply (ap (fun u0 => ap10 (f u0) u')).
         apply path_ishprop.
@@ -74,6 +75,7 @@ Module OpenModalities_easy <: EasyModalities.
     * intros p.
       refine (eta_path_arrow _ _ _).
   Defined.
+
 
 End OpenModalities_easy.
 
@@ -110,33 +112,33 @@ Defined.
 
 (** ** The open modality is accessible. *)
 
-Module Accessible_OpenModalities <: Accessible_Modalities OpenModalities.
+(* Module Accessible_OpenModalities <: Accessible_Modalities OpenModalities. *)
 
-  Module Import Os_Theory := Modalities_Theory OpenModalities.
+(*   Module Import Os_Theory := Modalities_Theory OpenModalities. *)
 
-  Definition acc_gen
-    := fun (O : OpenModalities.Modality@{u a}) =>
-         Build_NullGenerators@{a} Unit@{a} (fun _ => unOp O).
+(*   Definition acc_gen *)
+(*     := fun (O : OpenModalities.Modality@{u a}) => *)
+(*          Build_NullGenerators@{a} Unit@{a} (fun _ => unOp O). *)
 
-  Definition inO_iff_isnull
-             (O : OpenModalities.Modality@{u a}) (X : Type@{i})
-  : iff@{i i i}
-      (OpenModalities.In@{u a i} O X)
-      (IsNull (acc_gen O) X).
-  Proof.
-    pose (funext_Op O); split.
-    - intros X_inO u.
-      apply (equiv_inverse (equiv_ooextendable_isequiv _ _)).
-      refine (cancelR_isequiv (fun x (u:Unit) => x)).
-      apply X_inO.
-    - intros ext; specialize (ext tt).
-      refine (isequiv_compose (f := (fun x => unit_name x))
-                              (g := (fun h => h o (@const (unOp O) Unit tt)))).
-      refine (isequiv_ooextendable (fun _ => X) (@const (unOp O) Unit tt) ext).
-  Defined.
+(*   Definition inO_iff_isnull *)
+(*              (O : OpenModalities.Modality@{u a}) (X : Type@{i}) *)
+(*   : iff@{i i i} *)
+(*       (OpenModalities.In@{u a i} O X) *)
+(*       (IsNull (acc_gen O) X). *)
+(*   Proof. *)
+(*     pose (funext_Op O); split. *)
+(*     - intros X_inO u. *)
+(*       apply (equiv_inverse (equiv_ooextendable_isequiv _ _)). *)
+(*       refine (cancelR_isequiv (fun x (u:Unit) => x)). *)
+(*       apply X_inO. *)
+(*     - intros ext; specialize (ext tt). *)
+(*       refine (isequiv_compose (f := (fun x => unit_name x)) *)
+(*                               (g := (fun h => h o (@const (unOp O) Unit tt)))). *)
+(*       refine (isequiv_ooextendable (fun _ => X) (@const (unOp O) Unit tt) ext). *)
+(*   Defined. *)
 
-End Accessible_OpenModalities.
+(* End Accessible_OpenModalities. *)
 
-(** Thus, arguably a better definition of [Op] would be as a nullification modality, as it would not require [Funext] and would have a judgmental computation rule.  However, the above definition is also nice to know, as it doesn't use HITs.  We name the other version [Op']. *)
-Definition Op' (U : hProp) : Nullification_Modality
-  := Nul (Build_NullGenerators Unit (fun (_:Unit) => U)).
+(* (** Thus, arguably a better definition of [Op] would be as a nullification modality, as it would not require [Funext] and would have a judgmental computation rule.  However, the above definition is also nice to know, as it doesn't use HITs.  We name the other version [Op']. *) *)
+(* Definition Op' (U : hProp) : Nullification_Modality *)
+(*   := Nul (Build_NullGenerators Unit (fun (_:Unit) => U)). *)

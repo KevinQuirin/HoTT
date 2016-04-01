@@ -11,8 +11,8 @@ Generalizable Variables A B.
 
 (** If a type is contractible, then so is its type of contractions.
     Using [issig_contr] and the [equiv_intro] tactic, we can transfer this to the equivalent problem of contractibility of a certain Sigma-type, in which case we can apply the general path-construction functions. *)
-Global Instance contr_contr `{Funext} (A : Type)
-  : Contr A -> Contr (Contr A) | 100.
+Global Instance contr_contr `{Funext} (A : Type@{i})
+  : IsTrunc@{i i'} -2 A -> IsTrunc@{i' i'} -2 (IsTrunc@{i i'} -2 A) | 100.
 Proof.
   intros c; exists c; generalize c.
   equiv_intro (issig_contr A) c'.
@@ -24,8 +24,8 @@ Proof.
 Qed.
 
 (** This provides the base case in a proof that truncatedness is a proposition. *)
-Global Instance hprop_trunc `{Funext} (n : trunc_index) (A : Type)
-  : IsHProp (IsTrunc n A) | 0.
+Global Instance hprop_trunc `{Funext} (n : trunc_index) (A : Type@{i})
+  : IsTrunc@{i' i'} -1 (IsTrunc@{i i'} n A) | 0.
 Proof.
   apply hprop_inhabited_contr.
   revert A.
@@ -130,14 +130,16 @@ Defined.
 
 (** Logical equivalence of hprops is not just logically equivalent to equivalence, it is equivalent to it. *)
 Global Instance isequiv_equiv_iff_hprop_uncurried
-       `{Funext} {A B} `{IsHProp A} `{IsHProp B}
+       `{Funext} {A B} {IsHProp0 : IsTrunc@{i i'} -1 A} {IsHProp1 : IsTrunc@{j j'} -1 B}
 : IsEquiv (@equiv_iff_hprop_uncurried A _ B _) | 0.
 Proof.
-  pose (@istrunc_equiv).
+  Set Printing Universes.
+  pose (@istrunc_equiv H -2 A B IsHProp1).
   refine (isequiv_adjointify
             equiv_iff_hprop_uncurried
             (fun e => (@equiv_fun _ _ e, @equiv_inv _ _ e _))
-            _ _);
+            _ _).
+  intro; apply (@path_ishprop _ i).
     intro;
       by apply path_ishprop.
 Defined.

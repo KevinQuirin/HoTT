@@ -151,7 +151,7 @@ Module Type SigmaClosed (Os : ReflectiveSubuniverses).
            (A_inO : In@{u a i i'} O A)
            (B_inO : forall a, In@{u a j j'} O (B a)),
       In@{u a k k'} O {x:A & B x}.
-  Check inO_sigma@{u a i j i' j' k' k}.    (** Verify that we have the right number of universes *)
+  Check inO_sigma@{u a i j i' j' k k'}.    (** Verify that we have the right number of universes *)
 
 End SigmaClosed.
 
@@ -474,7 +474,7 @@ Question: is there a definition of connectedness (say, for n-types) that neither
 (** We give annotations to reduce the number of universe parameters. *)
 Class IsConnected (O : Modality@{u a}) (A : Type@{i})
   (** Since [Contr] is a [Notation], we can't annotate it for universes (see https://coq.inria.fr/bugs/show_bug.cgi?id=3825); thus we write [IsTrunc -2] explicitly instead. *)
-  := isconnected_contr_O : IsTrunc@{i'} -2 (O_reflector@{u a i i'} O A).
+  := isconnected_contr_O : IsTrunc@{i' i'} -2 (O_reflector@{u a i i'} O A).
 Check IsConnected@{u a i i'}.
 
 Global Existing Instance isconnected_contr_O.

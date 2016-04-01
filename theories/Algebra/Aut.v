@@ -29,7 +29,7 @@ Proof.
 Defined.
 
 (** Now we can define [Aut X], by proving that [BAut X] is connected. *)
-Definition Aut (X : Type@{i}) : ooGroup@{j u a}.
+Definition Aut (X : Type@{i}) : ooGroup@{j u a a}.
 Proof.
   refine (Build_ooGroup
             (Build_pType { Z : Type & merely (Z = X) } (X ; tr 1)) _).

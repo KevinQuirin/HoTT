@@ -21,8 +21,8 @@ Module Lex_Modalities_Theory (Os : Modalities).
 
   Class Lex (O : Modality@{u a})
     := isconnected_paths : forall (A : Type@{i}) (x y : A),
-                             IsConnected@{u a i} O A ->
-                             IsConnected@{u a i} O (x = y).
+                             IsConnected@{u a i i'} O A ->
+                             IsConnected@{u a i i'} O (x = y).
 
   Global Existing Instance isconnected_paths.
 
@@ -181,154 +181,158 @@ Module Lex_Modalities_Theory (Os : Modalities).
 
 End Lex_Modalities_Theory.
 
-(** ** Lex reflective subuniverses *)
+(* (** ** Lex reflective subuniverses *) *)
 
-(** A reflective subuniverse that preserves fibers is in fact a modality (and hence lex). *)
-Module Type Preserves_Fibers (Os : ReflectiveSubuniverses).
+(* (** A reflective subuniverse that preserves fibers is in fact a modality (and hence lex). *) *)
+(* Module Type Preserves_Fibers (Os : ReflectiveSubuniverses). *)
 
-  Export Os.
-  Module Export Os_Theory := ReflectiveSubuniverses_Theory Os.
+(*   Export Os. *)
+(*   Module Export Os_Theory := ReflectiveSubuniverses_Theory Os. *)
 
-  Parameter isequiv_O_functor_hfiber :
-     forall (O : ReflectiveSubuniverse) {A B} (f : A -> B) (b : B),
-       IsEquiv (O_functor_hfiber O f b).
+(*   Parameter isequiv_O_functor_hfiber : *)
+(*      forall (O : ReflectiveSubuniverse) {A B} (f : A -> B) (b : B), *)
+(*        IsEquiv (O_functor_hfiber O f b). *)
 
-End Preserves_Fibers.
+(* End Preserves_Fibers. *)
 
-Module Lex_Reflective_Subuniverses
-       (Os : ReflectiveSubuniverses) (Opf : Preserves_Fibers Os)
-  <: SigmaClosed Os.
+(* Module Lex_Reflective_Subuniverses *)
+(*        (Os : ReflectiveSubuniverses) (Opf : Preserves_Fibers Os) *)
+(*   <: SigmaClosed Os. *)
 
-  Import Opf.
+(*   Import Opf. *)
 
-  Definition inO_sigma (O : ReflectiveSubuniverse@{u a})
-             (A:Type@{i}) (B:A -> Type@{j})
-             (A_inO : In@{u a i} O A)
-             (B_inO : forall a, In@{u a j} O (B a))
-  : In@{u a k} O {x:A & B x}.
-  Proof.
-    pose (g := O_rec@{u a k i k k i} pr1 : O {x : A & B x} -> A).
-    transparent assert (p : (forall x, g (to O _ x) = x.1)).
-    { intros x; subst g; apply O_rec_beta. }
-    apply inO_isequiv_to_O@{u a k k}.
-    apply isequiv_fcontr; intros x.
-    refine (contr_equiv' _ (hfiber_hfiber_compose_map@{k k i k k k k k k} _ g x)).
-    apply fcontr_isequiv.
-    unfold hfiber_compose_map.
-    transparent assert (h : (Equiv@{k k} (hfiber@{k i} (@pr1 A B) (g x))
-                                         (hfiber@{k i} g (g x)))).
-    { refine (_ oE equiv_to_O@{u a k k} O _).
-      - refine (_ oE BuildEquiv _ _
-                  (O_functor_hfiber@{u a k i k k i k irrelevant k k k k k k}
-                                   O (@pr1 A B) (g x)) _).
-        unfold hfiber.
-        refine (equiv_functor_sigma' 1 _). intros y; cbn.
-        refine (_ oE (equiv_moveR_equiv_V _ _)).
-        apply equiv_concat_l.
-        apply moveL_equiv_V.
-        unfold g, O_functor.
-        revert y; apply O_indpaths@{u a k i i k k}; intros [a q]; cbn.
-        refine (_ @ (O_rec_beta _ _)^).
-        apply ap, O_rec_beta.
-      - refine (inO_equiv_inO@{dwim1 dwim2 dwim3 dwim4 k} _
-                 (hfiber_fibration@{i j k k} (g x) B)). }
-    refine (isequiv_homotopic (h oE equiv_hfiber_homotopic _ _ p (g x)) _).
-    intros [[a b] q]; cbn. clear h.
-    unfold O_functor_hfiber.
-    rewrite O_rec_beta.
-    unfold functor_sigma; cbn.
-    refine (path_sigma' _ 1 _).
-    rewrite O_indpaths_beta; cbn.
-    unfold moveL_equiv_V, moveR_equiv_V.
-    Open Scope long_path_scope.
-    rewrite !ap_pp, !concat_p_pp, !ap_V.
-    unfold to_O_natural.
-    rewrite concat_pV_p.
-    subst p.
-    rewrite concat_pp_V.
-    rewrite concat_pp_p; apply moveR_Vp.
-    rewrite <- !(ap_compose (to O A) (to O A)^-1).
-    rapply @concat_A1p.
-    Close Scope long_path_scope.
-  Qed.
+(*   Definition inO_sigma (O : ReflectiveSubuniverse@{u a}) *)
+(*              (A:Type@{i}) (B:A -> Type@{j}) *)
+(*              (A_inO : In@{u a i i'} O A) *)
+(*              (B_inO : forall a, In@{u a j j'} O (B a)) *)
+(*   : In@{u a k k'} O {x:A & B x}. *)
+(*   Proof. *)
+(*     Set Printing Universes. *)
+(*     pose (g := O_rec@{u a k i k' i' k'} pr1 : O {x : A & B x} -> A). *)
+(*     transparent assert (p : (forall x, g (to O _ x) = x.1)). *)
+(*     { intros x; subst g; apply O_rec_beta. } *)
+(*     apply inO_isequiv_to_O@{u a k k' k k'}. *)
 
-End Lex_Reflective_Subuniverses.
+(*     apply isequiv_fcontr; intros x. *)
+(*         Show Universes. *)
+(*     refine (contr_equiv _ (hfiber_hfiber_compose_map@{k k i k k k k k k} _ g x)). *)
 
-(** ** Accessible lex modalities *)
+(*     apply fcontr_isequiv. *)
+(*     unfold hfiber_compose_map. *)
+(*     transparent assert (h : (Equiv@{k k} (hfiber@{k i} (@pr1 A B) (g x)) *)
+(*                                   (hfiber@{k i} g (g x)))). *)
+(*     { refine (_ oE equiv_to_O@{u a k k} O _). *)
+(*       - refine (_ oE BuildEquiv _ _ *)
+(*                   (O_functor_hfiber@{u a k i k k i k irrelevant k k k k k k} *)
+(*                                    O (@pr1 A B) (g x)) _). *)
+(*         unfold hfiber. *)
+(*         refine (equiv_functor_sigma' 1 _). intros y; cbn. *)
+(*         refine (_ oE (equiv_moveR_equiv_V _ _)). *)
+(*         apply equiv_concat_l. *)
+(*         apply moveL_equiv_V. *)
+(*         unfold g, O_functor. *)
+(*         revert y; apply O_indpaths@{u a k i i k k}; intros [a q]; cbn. *)
+(*         refine (_ @ (O_rec_beta _ _)^). *)
+(*         apply ap, O_rec_beta. *)
+(*       - refine (inO_equiv_inO@{dwim1 dwim2 dwim3 dwim4 k} _ *)
+(*                  (hfiber_fibration@{i j k k} (g x) B)). } *)
+(*     refine (isequiv_homotopic (h oE equiv_hfiber_homotopic _ _ p (g x)) _). *)
+(*     intros [[a b] q]; cbn. clear h. *)
+(*     unfold O_functor_hfiber. *)
+(*     rewrite O_rec_beta. *)
+(*     unfold functor_sigma; cbn. *)
+(*     refine (path_sigma' _ 1 _). *)
+(*     rewrite O_indpaths_beta; cbn. *)
+(*     unfold moveL_equiv_V, moveR_equiv_V. *)
+(*     Open Scope long_path_scope. *)
+(*     rewrite !ap_pp, !concat_p_pp, !ap_V. *)
+(*     unfold to_O_natural. *)
+(*     rewrite concat_pV_p. *)
+(*     subst p. *)
+(*     rewrite concat_pp_V. *)
+(*     rewrite concat_pp_p; apply moveR_Vp. *)
+(*     rewrite <- !(ap_compose (to O A) (to O A)^-1). *)
+(*     rapply @concat_A1p. *)
+(*     Close Scope long_path_scope. *)
+(*   Qed. *)
 
-(** We now restrict to lex modalities that are also accessible. *)
-Module Accessible_Lex_Modalities_Theory
-       (Os : Modalities)
-       (Acc : Accessible_Modalities Os).
+(* End Lex_Reflective_Subuniverses. *)
 
-  Module Export Acc_Theory := Accessible_Modalities_Theory Os Acc.
-  Module Export Lex_Theory := Lex_Modalities_Theory Os.
+(* (** ** Accessible lex modalities *) *)
 
-  (** Unfortunately, another subtlety of modules bites us here.  It appears that each application of a parametrized module to arguments creates a *new* module, and Coq has no algorithm (not even syntactic identity) for considering two such modules "the same".  In particular, the applications [Module Os_Theory := Modalities_Theory Os] that occur in both [Accessible_Modalities_Theory Os Acc] and [Lex_Modalities_Theory Os] create two *different* modules, which appear here as [Acc_Theory.Os_Theory] and [Lex_Theory.Os_Theory].  Thus, for instance, we have two different definitions [Acc_Theory.Os_Theory.O_ind] and [Lex_Theory.Os_Theory.O_ind], etc.
+(* (** We now restrict to lex modalities that are also accessible. *) *)
+(* Module Accessible_Lex_Modalities_Theory *)
+(*        (Os : Modalities) *)
+(*        (Acc : Accessible_Modalities Os). *)
 
-  Fortunately, since these duplicate pairs of definitions each have the same body *and are (usually) transparent*, Coq is willing to consider them identical.  Thus, this doesn't cause a great deal of trouble.  However, there are certain contexts in which this doesn't apply.  For instance, if any definition in [Modalities_Theory] is opaque, then Coq will be unable to notice that its duplicate copies in [Acc_Theory.Os_Theory] and [Lex_Theory.Os_Theory] were identical, potentially causing problems.  But since we generally only make definitions opaque if we aren't going to depend on their actual value anywhere else, this is unlikely to be much of an issue.
+(*   Module Export Acc_Theory := Accessible_Modalities_Theory Os Acc. *)
+(*   Module Export Lex_Theory := Lex_Modalities_Theory Os. *)
 
-  A more serious issue is that there are some declarations that function up to a syntactic equality that is stricter than judgmental conversion.  For instance, [Inductive] and [Record] definitions, like modules, always create a new object not convertible to any previously existing one.  There are no [Inductive] or [Record] definitions in [Modalities_Theory], but there are [Class] declarations, and these function similarly.  In particular, typeclass search is unable to use [Instance]s defined in [Acc_Theory] to instantiate typeclasses from [Modalities_Theory] (such as [IsConnected]) needed by functions in [Lex_Theory], and vice versa.
+(*   (** Unfortunately, another subtlety of modules bites us here.  It appears that each application of a parametrized module to arguments creates a *new* module, and Coq has no algorithm (not even syntactic identity) for considering two such modules "the same".  In particular, the applications [Module Os_Theory := Modalities_Theory Os] that occur in both [Accessible_Modalities_Theory Os Acc] and [Lex_Modalities_Theory Os] create two *different* modules, which appear here as [Acc_Theory.Os_Theory] and [Lex_Theory.Os_Theory].  Thus, for instance, we have two different definitions [Acc_Theory.Os_Theory.O_ind] and [Lex_Theory.Os_Theory.O_ind], etc. *)
 
-  Fortunately, all the typeclasses defined in [Modalities_Theory] are *singleton* or *definitional* classes (defined with `:= unique_field` rather than `{ field1 ; field2 ; ... }`), which means that they do not actually introduce a new record wrapper.  Thus, the [Instance]s from [Acc_Theory] can in fact be typechecked to *belong* to the typeclasses needed by [Lex_Theory], and hence can be supplied explicitly.
+(*   Fortunately, since these duplicate pairs of definitions each have the same body *and are (usually) transparent*, Coq is willing to consider them identical.  Thus, this doesn't cause a great deal of trouble.  However, there are certain contexts in which this doesn't apply.  For instance, if any definition in [Modalities_Theory] is opaque, then Coq will be unable to notice that its duplicate copies in [Acc_Theory.Os_Theory] and [Lex_Theory.Os_Theory] were identical, potentially causing problems.  But since we generally only make definitions opaque if we aren't going to depend on their actual value anywhere else, this is unlikely to be much of an issue. *)
 
-  We can also do this once and for all by defining [Instance]s translating automatically between the two typeclasses, although unfortunately we probably can't declare such instances in both directions at once for fear of infinite loops.  Fortunately, there is not a lot in [Acc_Theory], so this direction seems likely to be the most useful. *)
+(*   A more serious issue is that there are some declarations that function up to a syntactic equality that is stricter than judgmental conversion.  For instance, [Inductive] and [Record] definitions, like modules, always create a new object not convertible to any previously existing one.  There are no [Inductive] or [Record] definitions in [Modalities_Theory], but there are [Class] declarations, and these function similarly.  In particular, typeclass search is unable to use [Instance]s defined in [Acc_Theory] to instantiate typeclasses from [Modalities_Theory] (such as [IsConnected]) needed by functions in [Lex_Theory], and vice versa. *)
 
-  Global Instance isconnected_acc_to_lex {O : Modality} {A : Type}
-         {H : Acc_Theory.Os_Theory.IsConnected O A}
-            : Lex_Theory.Os_Theory.IsConnected O A
-         := H.
+(*   Fortunately, all the typeclasses defined in [Modalities_Theory] are *singleton* or *definitional* classes (defined with `:= unique_field` rather than `{ field1 ; field2 ; ... }`), which means that they do not actually introduce a new record wrapper.  Thus, the [Instance]s from [Acc_Theory] can in fact be typechecked to *belong* to the typeclasses needed by [Lex_Theory], and hence can be supplied explicitly. *)
 
-  (** Probably the most important thing about an accessible lex modality is that the universe of modal types is again modal.  Here by "the universe" we mean a universe large enough to contain the generating family; this is why we need accessibility. *)
-  Global Instance inO_typeO `{Univalence} (O : Modality) `{Lex O}
-  : In O (Type_ O).
-  Proof.
-    apply (snd (inO_iff_isnull O _)); intros i n; simpl in *.
-    destruct n; [ exact tt | split ].
-    - intros P.
-      (** Here is the core of the proof: we must show that any family of modal types indexed by a (generating) connected type is equivalent to a constant family.  We take the constant family to be constant at the reflection of the sum of our given family [P]. *)
-      refine (fun u => (O (sigT P) ; _) ; _).
-      1:exact _.
-      intros x; symmetry; apply path_TypeO; simpl.
-      refine (path_universe (fun p => to O _ (x ; p))).
-      revert x; apply isequiv_from_functor_sigma.
-      refine (@isequiv_compose _ _
-                (pullback_corec ((fun w:sigT P => 1)
-                                 : const tt o to O (sigT P) == const tt o pr1))
-                _ _ (fun w => (w.2.1 ; w.1)) _).
-      (** And here is the core of why it works: the useful lemma above about detecting pullback squares. *)
-      + refine (ispullback_connmap_mapino_commsq O
-                 ((fun w:sigT P => 1)
-                  : const tt o to O (sigT P) == const tt o pr1)).
-        (** All the necessary hypotheses are found by typeclass magic! *)
-      + refine (@isequiv_compose _ _
-                  (equiv_compose
-                    (equiv_prod_symm (O (sigT P)) (acc_gen O i))
-                    (equiv_pullback_unit_prod (O (sigT P)) (acc_gen O i)))
-                  _ _ (equiv_sigma_prod0 _ _)^-1 _).
-    - intros A B.
-      (** The case [n>0] is actually quite easy, using univalence and the fact that modal types are closed under [Equiv]. *)
-      refine (extendable_postcompose' n _ _ _
-                (fun b => (equiv_path_TypeO O (A b) (B b))
-                            oE (equiv_path_universe (A b) (B b)))
-                _).
-      refine (extendable_conn_map_inO O n (@const (acc_gen O i) Unit tt)
-                                      (fun b => A b <~> B b)).
-      (** Typeclass magic! *)
-  Defined.
+(*   We can also do this once and for all by defining [Instance]s translating automatically between the two typeclasses, although unfortunately we probably can't declare such instances in both directions at once for fear of infinite loops.  Fortunately, there is not a lot in [Acc_Theory], so this direction seems likely to be the most useful. *) *)
 
-  (** [inO_typeO] is also an equivalent characterization of lex-ness for a modality.  We will prove this, because it is less obvious, and also more useful. *)
-  Definition lex_inO_typeO (O : Modality) `{In O (Type_ O)}
-  : Lex O.
-  Proof.
-    intros A x y ?.
-    apply isconnected_from_elim_to_O.
-    (** The idea is that if [A] is connected and [Type_ O] is modal, then [fun y => O (x = y) : A -> Type_ O] is constant.  Thus, [to O (x=x) 1] can be transported around to make it contractible everywhere. *)
-    pose (e := isconnected_elim O (Type_ O)
-                 (fun y' => (O (x = y') ; O_inO _))).
-    exists (transport idmap (e.2 x @ (e.2 y)^)..1 (to O (x=x) 1)).
-    intros [].
-    exact ((transport2 idmap (ap (ap pr1) (concat_pV (e.2 x))) _)^).
-  Defined.
+(*   Global Instance isconnected_acc_to_lex {O : Modality} {A : Type} *)
+(*          {H : Acc_Theory.Os_Theory.IsConnected O A} *)
+(*             : Lex_Theory.Os_Theory.IsConnected O A *)
+(*          := H. *)
 
-End Accessible_Lex_Modalities_Theory.
+(*   (** Probably the most important thing about an accessible lex modality is that the universe of modal types is again modal.  Here by "the universe" we mean a universe large enough to contain the generating family; this is why we need accessibility. *) *)
+(*   Global Instance inO_typeO `{Univalence} (O : Modality) `{Lex O} *)
+(*   : In O (Type_ O). *)
+(*   Proof. *)
+(*     apply (snd (inO_iff_isnull O _)); intros i n; simpl in *. *)
+(*     destruct n; [ exact tt | split ]. *)
+(*     - intros P. *)
+(*       (** Here is the core of the proof: we must show that any family of modal types indexed by a (generating) connected type is equivalent to a constant family.  We take the constant family to be constant at the reflection of the sum of our given family [P]. *) *)
+(*       refine (fun u => (O (sigT P) ; _) ; _). *)
+(*       1:exact _. *)
+(*       intros x; symmetry; apply path_TypeO; simpl. *)
+(*       refine (path_universe (fun p => to O _ (x ; p))). *)
+(*       revert x; apply isequiv_from_functor_sigma. *)
+(*       refine (@isequiv_compose _ _ *)
+(*                 (pullback_corec ((fun w:sigT P => 1) *)
+(*                                  : const tt o to O (sigT P) == const tt o pr1)) *)
+(*                 _ _ (fun w => (w.2.1 ; w.1)) _). *)
+(*       (** And here is the core of why it works: the useful lemma above about detecting pullback squares. *) *)
+(*       + refine (ispullback_connmap_mapino_commsq O *)
+(*                  ((fun w:sigT P => 1) *)
+(*                   : const tt o to O (sigT P) == const tt o pr1)). *)
+(*         (** All the necessary hypotheses are found by typeclass magic! *) *)
+(*       + refine (@isequiv_compose _ _ *)
+(*                   (equiv_compose *)
+(*                     (equiv_prod_symm (O (sigT P)) (acc_gen O i)) *)
+(*                     (equiv_pullback_unit_prod (O (sigT P)) (acc_gen O i))) *)
+(*                   _ _ (equiv_sigma_prod0 _ _)^-1 _). *)
+(*     - intros A B. *)
+(*       (** The case [n>0] is actually quite easy, using univalence and the fact that modal types are closed under [Equiv]. *) *)
+(*       refine (extendable_postcompose' n _ _ _ *)
+(*                 (fun b => (equiv_path_TypeO O (A b) (B b)) *)
+(*                             oE (equiv_path_universe (A b) (B b))) *)
+(*                 _). *)
+(*       refine (extendable_conn_map_inO O n (@const (acc_gen O i) Unit tt) *)
+(*                                       (fun b => A b <~> B b)). *)
+(*       (** Typeclass magic! *) *)
+(*   Defined. *)
+
+(*   (** [inO_typeO] is also an equivalent characterization of lex-ness for a modality.  We will prove this, because it is less obvious, and also more useful. *) *)
+(*   Definition lex_inO_typeO (O : Modality) `{In O (Type_ O)} *)
+(*   : Lex O. *)
+(*   Proof. *)
+(*     intros A x y ?. *)
+(*     apply isconnected_from_elim_to_O. *)
+(*     (** The idea is that if [A] is connected and [Type_ O] is modal, then [fun y => O (x = y) : A -> Type_ O] is constant.  Thus, [to O (x=x) 1] can be transported around to make it contractible everywhere. *) *)
+(*     pose (e := isconnected_elim O (Type_ O) *)
+(*                  (fun y' => (O (x = y') ; O_inO _))). *)
+(*     exists (transport idmap (e.2 x @ (e.2 y)^)..1 (to O (x=x) 1)). *)
+(*     intros []. *)
+(*     exact ((transport2 idmap (ap (ap pr1) (concat_pV (e.2 x))) _)^). *)
+(*   Defined. *)
+
+(* End Accessible_Lex_Modalities_Theory. *)

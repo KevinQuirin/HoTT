@@ -10,24 +10,26 @@ Local Open Scope path_scope.
 Generalizable Variables A B f.
 
 (** If a space is contractible, then any two points in it are connected by a path in a canonical way. *)
-Definition path_contr `{Contr A} (x y : A) : x = y
+Definition path_contr {A:Type@{i}} {H:IsTrunc@{i i'} -2 A} (x y : A) : x = y
   := (contr x)^ @ (contr y).
 
 (** Similarly, any two parallel paths in a contractible space are homotopic, which is just the principle UIP. *)
-Definition path2_contr `{Contr A} {x y : A} (p q : x = y) : p = q.
+Set Printing Universes.
+Unset Printing Notations.
+Definition path2_contr {A:Type@{i}} {H:IsTrunc@{i i'} -2 A} {x y : A} (p q : x = y) : p = q.
 Proof.
   assert (K : forall (r : x = y), r = path_contr x y).
-    intro r; destruct r; symmetry; now apply concat_Vp.
+  intro r; destruct r; symmetry; now apply concat_Vp.
   transitivity (path_contr x y);auto with path_hints.
 Defined.
 
 (** It follows that any space of paths in a contractible space is contractible. *)
 (** Because [Contr] is a notation, and [Contr_internal] is the record, we need to iota expand to fool Coq's typeclass machinery into accepting supposedly "mismatched" contexts. *)
 
-Global Instance contr_paths_contr `{Contr A} (x y : A) : Contr (x = y) | 10000 := let c := {|
+Global Instance contr_paths_contr {A:Type@{i}} {H:IsTrunc@{i i'} -2 A} (x y : A) : IsTrunc@{i i'} -2 (x = y) | 10000 := let c := {|
   center := (contr x)^ @ contr y;
   contr := path2_contr ((contr x)^ @ contr y)
-|} in c.
+                                                                                                                |} in c.
 
 (** Also, the total space of any based path space is contractible.  We define the [contr] fields as separate definitions, so that we can give them [simpl nomatch] annotations. *)
 

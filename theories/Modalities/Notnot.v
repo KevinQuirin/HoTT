@@ -17,21 +17,22 @@ Record Notnot_Modality := Notnot { unNotnot : Funext }.
 
 Module Notnot_Easy_Modalities <: EasyModalities.
 
+  Set Printing Universes.
   Definition Modality : Type2@{u a}
     := Notnot_Modality.
 
-  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i}
+  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i'}
     (** We call [not] explicitly with universe annotations so that [O_reflector] has the right number of universe parameters to satisfy the module type. *)
     := fun O X => not@{i i i} (not@{i i i} X).
 
   Definition to (O : Modality@{u a}) (T : Type@{i})
-  : T -> O_reflector@{u a i} O T
+  : T -> O_reflector@{u a i i'} O T
   := fun x nx => nx x.
 
   Definition O_indO (O : Modality@{u a}) (A : Type@{i})
-             (B : O_reflector@{u a i} O A -> Type@{j})
-  : (forall a : A, O_reflector@{u a j} O (B (to O A a))) ->
-    forall z : O_reflector@{u a i} O A, O_reflector@{u a j} O (B z).
+             (B : O_reflector@{u a i i'} O A -> Type@{j})
+  : (forall a : A, O_reflector@{u a j j'} O (B (to@{u a i i'} O A a))) ->
+    forall z : O_reflector@{u a i i'} O A, O_reflector@{u a j j'} O (B z).
   Proof.
     intros f z nBz.
     pose (unNotnot O).          (** Access the [Funext] hypothesis *)
@@ -40,14 +41,16 @@ Module Notnot_Easy_Modalities <: EasyModalities.
     apply z; intros a.
     (** Now the goal is [Empty@{i}], whereas [f] has codomain [Empty@{j}]. *)
     cut (Empty@{j}); [ intros [] | ].
-    exact (f a (transport (fun x => not@{j j j} (B x))
+    refine (f a _).
+    exact ((transport@{i' j} (fun x => not@{j j j} (B x))
                           (path_ishprop _ _)
                           nBz)).
+    Show Universes.
   Defined.
 
   Definition O_indO_beta (O : Modality@{u a}) (A : Type@{i})
-             (B : O_reflector@{u a i} O A -> Type@{j})
-             (f : forall a, O_reflector@{u a j} O (B (to O A a))) (a:A)
+             (B : O_reflector@{u a i i'} O A -> Type@{j})
+             (f : forall a, O_reflector@{u a j j'} O (B (to O A a))) (a:A)
   : O_indO O A B f (to O A a) = f a.
   Proof.
     pose (unNotnot O).
@@ -55,8 +58,8 @@ Module Notnot_Easy_Modalities <: EasyModalities.
   Defined.
 
   Definition minO_pathsO (O : Modality@{u a}) (A : Type@{i})
-             (z z' : O_reflector@{u a i} O A)
-  : IsEquiv@{i i} (to@{u a i} O (z = z')).
+             (z z' : O_reflector@{u a i i'} O A)
+  : IsEquiv@{i' i''} (to@{u a i' i''} O (z = z')).
   Proof.
     pose (unNotnot O).
     refine (isequiv_iff_hprop _ _).

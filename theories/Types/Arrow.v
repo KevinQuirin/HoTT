@@ -174,8 +174,8 @@ Global Instance contr_arrow {A B : Type} `{Contr B}
   : Contr (A -> B) | 100
 := contr_forall.
 
-Global Instance trunc_arrow {A B : Type} `{IsTrunc n B}
-  : IsTrunc n (A -> B) | 100
+Global Instance trunc_arrow {A B : Type} {n:trunc_index} {H:IsTrunc@{j j'} n B}
+  : IsTrunc@{k k'} n (A -> B) | 100
 := trunc_forall.
 
 (** ** Equivalences *)

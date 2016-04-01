@@ -10,6 +10,7 @@ Local Open Scope path_scope.
 
 (** * BAut(Bool) *)
 
+(*
 Section AssumeUnivalence.
   Context `{Univalence}.
 
@@ -445,3 +446,4 @@ First we define the function that will be the equivalence. *)
   Defined.
 
 End AssumeUnivalence.
+*)

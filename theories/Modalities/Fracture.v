@@ -189,40 +189,40 @@ Defined.
 
 (** We can also prove the same thing without funext if we use the nullification versions of these modalities. *)
 
-Import NulM.
-Module Import Propositional_Fracture'
-  := Fracture Nullification_Modalities.
+(* Import NulM. *)
+(* Module Import Propositional_Fracture' *)
+(*   := Fracture Nullification_Modalities. *)
 
-Definition gluable_open_closed' (U : hProp)
-: Gluable (Op' U) (Cl' U).
-Proof.
-  intros A ? u; simpl in *.
-  pose proof (contr_inhabited_hprop U u).
-  assert (Contr A).
-  { refine (contr_equiv (Op' U A) _).
-    - refine (O_rec idmap).
-      intros []; simpl.
-      apply ooextendable_equiv.
-      refine (equiv_isequiv (@equiv_contr_contr U Unit _ _)).
-    - refine (isequiv_adjointify _ (to (Op' U) A) _ _).
-      + intros a; apply O_rec_beta.
-      + intros oa; revert oa; apply O_indpaths; intros a; simpl.
-        apply ap, O_rec_beta. }       
-  apply ooextendable_contr; exact _.
-Defined.
+(* Definition gluable_open_closed' (U : hProp) *)
+(* : Gluable (Op' U) (Cl' U). *)
+(* Proof. *)
+(*   intros A ? u; simpl in *. *)
+(*   pose proof (contr_inhabited_hprop U u). *)
+(*   assert (Contr A). *)
+(*   { refine (contr_equiv (Op' U A) _). *)
+(*     - refine (O_rec idmap). *)
+(*       intros []; simpl. *)
+(*       apply ooextendable_equiv. *)
+(*       refine (equiv_isequiv (@equiv_contr_contr U Unit _ _)). *)
+(*     - refine (isequiv_adjointify _ (to (Op' U) A) _ _). *)
+(*       + intros a; apply O_rec_beta. *)
+(*       + intros oa; revert oa; apply O_indpaths; intros a; simpl. *)
+(*         apply ap, O_rec_beta. }        *)
+(*   apply ooextendable_contr; exact _. *)
+(* Defined. *)
 
-Definition disjoint_open_closed' (U : hProp)
-: Disjoint (Op' U) (Cl' U).
-Proof.
-  intros A An.
-  apply isconnected_from_elim; intros C Cn f.
-  refine (@local_rec _ C Cn tt _ tt ; _); simpl.
-  - intros u.
-    exact (f (@local_rec _ A An u Empty_rec tt)).
-  - intros a; simpl.
-    refine (@local_indpaths _ C Cn tt (fun _ => f a) _ _ tt);
-      intros u; simpl in *.
-    refine (_ @ (@local_rec_beta _ C Cn tt _ u)^).
-    apply ap.
-    exact (@local_indpaths _ A An u (fun _ => a) _ (Empty_ind _) tt).
-Defined.
+(* Definition disjoint_open_closed' (U : hProp) *)
+(* : Disjoint (Op' U) (Cl' U). *)
+(* Proof. *)
+(*   intros A An. *)
+(*   apply isconnected_from_elim; intros C Cn f. *)
+(*   refine (@local_rec _ C Cn tt _ tt ; _); simpl. *)
+(*   - intros u. *)
+(*     exact (f (@local_rec _ A An u Empty_rec tt)). *)
+(*   - intros a; simpl. *)
+(*     refine (@local_indpaths _ C Cn tt (fun _ => f a) _ _ tt); *)
+(*       intros u; simpl in *. *)
+(*     refine (_ @ (@local_rec_beta _ C Cn tt _ u)^). *)
+(*     apply ap. *)
+(*     exact (@local_indpaths _ A An u (fun _ => a) _ (Empty_ind _) tt). *)
+(* Defined. *)

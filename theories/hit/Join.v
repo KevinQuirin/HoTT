@@ -16,7 +16,7 @@ Section Join.
   Definition joinpp A B := @pp (A*B) A B fst snd.
 
   (** Joining with a contractible type produces a contractible type *)
-  Global Instance contr_join A B `{Contr A} : Contr (join A B).
+  Global Instance contr_join (A:Type@{i}) (B:Type@{j}) {H:IsTrunc@{i i'} -2 A} : IsTrunc@{k k'} -2 (join@{i j k} A B).
   Proof.
     exists (push (inl (center A))).
     intros y; refine (pushout_ind _ _ _ _ _ y).
@@ -30,7 +30,7 @@ Section Join.
       unfold pushl, pushr; simpl.
       rewrite <- ap_compose; unfold joinpp.
       rewrite ap_const, concat_p1.
-      reflexivity.
+      reflexivity. 
   Defined.
 
 End Join.

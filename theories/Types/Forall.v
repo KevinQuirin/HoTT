@@ -206,15 +206,15 @@ Definition equiv_functor_forall_id `{P : A -> Type} `{Q : A -> Type}
 
 (** ** Truncatedness: any dependent product of n-types is an n-type *)
 
-Global Instance contr_forall `{P : A -> Type} `{forall a, Contr (P a)}
-  : Contr (forall a, P a) | 100.
+Global Instance contr_forall {A:Type@{i}} {P : A -> Type@{j}} {H:forall a, IsTrunc@{j j'} -2 (P a)}
+  : IsTrunc@{k k'} -2 (forall a, P a) | 100.
 Proof.
   exists (fun a => center (P a)).
   intro f.  apply path_forall.  intro a.  apply contr.
 Defined.
 
-Global Instance trunc_forall `{P : A -> Type} `{forall a, IsTrunc n (P a)}
-  : IsTrunc n (forall a, P a) | 100.
+Global Instance trunc_forall {A:Type@{i}} {P : A -> Type@{j}} `{forall a, IsTrunc@{j j'} n (P a)}
+  : IsTrunc@{k k'} n (forall a, P a) | 100.
 Proof.
   generalize dependent P.
   simple_induction n n IH; simpl; intros P ?.

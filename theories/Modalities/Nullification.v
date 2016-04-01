@@ -7,7 +7,7 @@ Require Import Modality Accessible.
 Require Export Localization.    (** Nullification is a special case of localization *)
 
 Local Open Scope path_scope.
-
+(*
 (** Nullification is the special case of localization where the codomains of the generating maps are all [Unit].  In this case, we get a modality and not just a reflective subuniverse. *)
 
 (** The hypotheses of this lemma may look slightly odd (why are we bothering to talk about type families dependent over [Unit]?), but they seem to be the most convenient to make the induction go through.  *)
@@ -149,3 +149,4 @@ Module Nudge_Modalities
     := Modalities_Restriction Nullification_Modalities Data.
 
 End Nudge_Modalities.
+*)

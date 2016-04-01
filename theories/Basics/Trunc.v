@@ -32,13 +32,17 @@ Definition contr_trunc_minus_two `{H : IsTrunc -2 A} : Contr A
   := H.
 
 (** Truncation levels are cumulative. *)
-Global Instance trunc_succ `{IsTrunc n A} : IsTrunc n.+1 A | 1000.
+Set Printing Universes.
+Unset Printing Notations.
+
+Global Instance trunc_succ {n:trunc_index} {A:Type@{i}} {H:IsTrunc@{i i'} n A} : IsTrunc@{i i'} n.+1 A | 1000.
 Proof.
   generalize dependent A.
   simple_induction n n IH; simpl; intros A H x y.
-  - apply contr_paths_contr.
+  - apply contr_paths_contr@{i i'}. 
   - apply IH, H.
 Qed.
+
 
 (** This could be an [Instance] (with very high priority, so it doesn't get applied trivially).  However, we haven't given typeclass search any hints allowing it to solve goals like [m <= n], so it would only ever be used trivially.  *)
 Definition trunc_leq {m n} (Hmn : m <= n) `{IsTrunc m A} : IsTrunc n A.
@@ -71,11 +75,14 @@ Hint Immediate trunc_hset : typeclass_instances.
 
 (** Equivalence preserves truncation (this is, of course, trivial with univalence).
    This is not an [Instance] because it causes infinite loops.
-   *)
-Definition trunc_equiv A {B} (f : A -> B)
-  `{IsTrunc n A} `{IsEquiv A B f}
-  : IsTrunc n B.
+ *)
+Set Printing Universes.
+Definition trunc_equiv (A:Type@{i}) { B:Type@{j} } (f : A -> B)
+           {n:trunc_index}
+  {H:IsTrunc@{i i'} n A} `{IsEquiv A B f}
+  : IsTrunc@{j i'} n B.
 Proof.
+  Show Universes.
   generalize dependent B; generalize dependent A.
   simple_induction n n IH; simpl; intros A ? B f ?.
   - exact (contr_equiv _ f).
@@ -100,9 +107,10 @@ Notation IsEmbedding := (IsTruncMap -1).
 
 (** It is convenient for some purposes to consider the universe of all n-truncated types (within a given universe of types).  In particular, this allows us to state the important fact that each such universe is itself (n+1)-truncated. *)
 
+Set Printing Universes.
 Record TruncType (n : trunc_index) := BuildTruncType {
-  trunctype_type : Type ;
-  istrunc_trunctype_type : IsTrunc n trunctype_type
+  trunctype_type : Type@{i} ;
+  istrunc_trunctype_type : IsTrunc@{i i'} n trunctype_type
 }.
 (* Note: the naming of the second constructor is more than a little clunky.  However, the more obvious [istrunc_trunctype] is taken by the theorem below, that [IsTrunc n.+1 (TruncType n)], which seems to have an even better claim to it. *)
 
@@ -145,7 +153,7 @@ Proof.
 Defined.
 
 (** Any two points in an hprop are connected by a path. *)
-Theorem path_ishprop `{H : IsHProp A} : forall x y : A, x = y.
+Theorem path_ishprop {A:Type@{i}} {H : IsTrunc@{i i'} -1 A} : forall x y : A, x = y.
 Proof.
   apply H.
 Defined.
@@ -158,7 +166,7 @@ Theorem hprop_allpath (A : Type) : (forall (x y : A), x = y) -> IsHProp A.
 Defined.
 
 (** Two propositions are equivalent as soon as there are maps in both directions. *)
-Definition isequiv_iff_hprop `{IsHProp A} `{IsHProp B}
+Definition isequiv_iff_hprop {A:Type@{i}} {H:IsTrunc@{i i'} -1 A} {B:Type@{j}} {H0:IsTrunc@{j j'} -1 B}
   (f : A -> B) (g : B -> A)
 : IsEquiv f.
 Proof.
@@ -166,15 +174,16 @@ Proof.
     intros ?; apply path_ishprop.
 Defined.
 
-Definition equiv_iff_hprop_uncurried `{IsHProp A} `{IsHProp B}
+Definition equiv_iff_hprop_uncurried {A:Type@{i}} {H:IsTrunc@{i i'} -1 A} {B:Type@{j}} {H0:IsTrunc@{j j'} -1 B}
   : (A <-> B) -> (A <~> B).
 Proof.
   intros [f g].
   apply (equiv_adjointify f g);
     intros ?; apply path_ishprop.
+  Show Universes.
 Defined.
 
-Definition equiv_iff_hprop `{IsHProp A} `{IsHProp B}
+Definition equiv_iff_hprop {A:Type@{i}} {H:IsTrunc@{i i'} -1 A} {B:Type@{j}} {H0:IsTrunc@{j j'} -1 B}
   : (A -> B) -> (B -> A) -> (A <~> B)
   := fun f g => equiv_iff_hprop_uncurried (f, g).
 

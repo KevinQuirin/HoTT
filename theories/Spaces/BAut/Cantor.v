@@ -6,6 +6,7 @@ Require Import hit.Truncations Spaces.BAut Spaces.Cantor.
 Local Open Scope equiv_scope.
 Local Open Scope path_scope.
 
+(*
 (** * BAut(Cantor) *)
 
 (** ** A pre-idempotent on [BAut Cantor] that does not split *)
@@ -189,3 +190,4 @@ Definition not_qidem_baut_cantor_idem `{Univalence}
 : ~ { I : IsPreIdempotent baut_cantor_idem
         & IsQuasiIdempotent baut_cantor_idem }
   := fun IJ => BAut_Cantor_Idempotent.impossible IJ.1 IJ.2.
+*)

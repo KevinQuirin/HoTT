@@ -79,12 +79,13 @@ Section AssumeFunext.
   (** This implies that types of equivalences inherit truncation.  Note that we only state the theorem for [n.+1]-truncatedness, since it is not true for contractibility: if [B] is contractible but [A] is not, then [A <~> B] is not contractible because it is not inhabited.
 
    Don't confuse this lemma with [trunc_equiv], which says that if [A] is truncated and [A] is equivalent to [B], then [B] is truncated.  It would be nice to find a better pair of names for them. *)
-  Global Instance istrunc_equiv {n : trunc_index} {A B : Type} `{IsTrunc n.+1 B}
-  : IsTrunc n.+1 (A <~> B).
+  Global Instance istrunc_equiv {n : trunc_index} {A: Type@{i}} {B:Type@{j}} {H:IsTrunc@{j j'} n.+1 B}
+  : IsTrunc@{k k'} n.+1 (A <~> B).
   Proof.
     simpl. intros e1 e2.
-    apply (trunc_equiv _ (equiv_path_equiv e1 e2)).
+    refine (trunc_equiv@{j k k'} _ (equiv_path_equiv@{i j j k' k' k'} e1 e2)).
   Defined.
+
 
   (** In the contractible case, we have to assume that *both* types are contractible to get a contractible type of equivalences. *)
   Global Instance contr_equiv_contr_contr {A B : Type} `{Contr A} `{Contr B}

@@ -50,29 +50,32 @@ Module ClosedModalities <: Modalities.
 
   Definition Modality : Type@{u} := Closed_Modality@{a}.
 
-  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i}
-    := fun O X => join@{a i i} (unCl O) X.
+  Set Printing Universes.
+  Definition O_reflector : Modality@{u a} -> Type@{i} -> Type@{i'}
+    := fun O X => join@{a i i'} (unCl O) X.
 
-  Definition In : Modality@{u a} -> Type@{i} -> Type@{i}
+  Definition In : Modality@{u a} -> Type@{i} -> Type@{i'}
     := fun O X => unCl O -> Contr X.
 
   Definition O_inO (O : Modality@{u a}) (T : Type@{i})
-  : In@{u a i} O (O_reflector@{u a i} O T).
+  : In@{u a i' i'} O (O_reflector@{u a i i'} O T).
   Proof.
     intros u.
     pose (contr_inhabited_hprop _ u).
     exact _.
   Defined.
 
+  Unset Printing Notations.
+  Set Printing Universes.
   Definition to (O : Modality@{u a}) (T : Type@{i})
-  : T -> O_reflector@{u a i} O T
+  : T -> O_reflector@{u a i i'} O T
     := fun x => push (inr x).
 
   Definition inO_equiv_inO (O : Modality@{u a}) (T : Type@{i}) (U : Type@{j})
-     (T_inO : In@{u a i} O T) (f : T -> U) (feq : IsEquiv f)
+     (T_inO : In@{u a i i'} O T) (f : T -> U) (feq : IsEquiv f)
   : let gei := ((fun x => x) : Type@{i} -> Type@{k}) in
     let gej := ((fun x => x) : Type@{j} -> Type@{k}) in
-    In@{u a j} O U.
+    In@{u a j i'} O U.
   Proof.
     cbn; intros u; pose (T_inO u).
     refine (contr_equiv _ f); exact _.
@@ -80,20 +83,20 @@ Module ClosedModalities <: Modalities.
 
   Definition hprop_inO `{Funext}
              (O : Modality@{u a}) (T : Type@{i})
-  : IsHProp (In@{u a i} O T).
+  : IsHProp (In@{u a i i'} O T).
   Proof.
     exact _.
   Defined.
 
   Definition O_ind_internal (O : Modality@{u a})
-             (A : Type@{i}) (B : O_reflector O A -> Type@{j})
-             (B_inO : forall oa, In@{u a j} O (B oa))
-  : let gei := ((fun x => x) : Type@{i} -> Type@{k}) in
-    let gej := ((fun x => x) : Type@{j} -> Type@{k}) in
-    (forall a, B (to@{u a i} O A a)) -> forall a, B a.
+             (A : Type@{i}) (B : O_reflector@{u a i i'} O A -> Type@{j})
+             (B_inO : forall oa, In@{u a j j'} O (B oa))
+  : let gei := ((fun x => x) : Type@{i'} -> Type@{k}) in
+    let gej := ((fun x => x) : Type@{j'} -> Type@{k}) in
+    (forall a, B (to@{u a i i'} O A a)) -> forall a, B a.
   Proof.
     simpl; intros f z.
-    refine (pushout_ind@{i a i j i} _ _ B _ _ z).
+    refine (pushout_ind@{i' a i j i'} _ _ B _ _ z).
     - intros [u | a].
       + apply center, B_inO, u.
       + apply f.
@@ -103,16 +106,16 @@ Module ClosedModalities <: Modalities.
   Defined.
 
   Definition O_ind_beta_internal (O : Modality@{u a}) (A : Type@{i})
-             (B : O_reflector@{u a i} O A -> Type@{j})
-             (B_inO : forall oa, In@{u a j} O (B oa))
+             (B : O_reflector@{u a i i'} O A -> Type@{j})
+             (B_inO : forall oa, In@{u a j j'} O (B oa))
              (f : forall a : A, B (to O A a)) (a : A)
   : O_ind_internal O A B B_inO f (to O A a) = f a
   := 1.
 
   Definition minO_paths (O : Modality@{u a}) (A : Type@{i})
-             (A_inO : In@{u a i} O A)
+             (A_inO : In@{u a i i'} O A)
              (z z' : A)
-  : In@{u a i} O (z = z').
+  : In@{u a i i'} O (z = z').
   Proof.
     intros u; pose (A_inO u); apply contr_paths_contr.
   Defined.
@@ -126,54 +129,54 @@ Export ClM.RSU.Coercions.
 Coercion Closed_Modality_to_Modality :=
   idmap : Closed_Modality -> ClosedModalities.Modality.
 
-(** The closed modality is accessible. *)
-Module Accessible_ClosedModalities
-  <: Accessible_Modalities ClosedModalities.
+(* (** The closed modality is accessible. *) *)
+(* Module Accessible_ClosedModalities *)
+(*   <: Accessible_Modalities ClosedModalities. *)
 
-  Module Os_Theory := Modalities_Theory ClosedModalities.
+(*   Module Os_Theory := Modalities_Theory ClosedModalities. *)
 
-  Definition acc_gen
-    := fun (O : ClosedModalities.Modality@{u a}) =>
-         Build_NullGenerators@{a} (unCl O) (fun _ => Empty@{a}).
+(*   Definition acc_gen *)
+(*     := fun (O : ClosedModalities.Modality@{u a}) => *)
+(*          Build_NullGenerators@{a} (unCl O) (fun _ => Empty@{a}). *)
 
-  Definition inO_iff_isnull
-             (O : ClosedModalities.Modality@{u a}) (X : Type@{i})
-  : iff@{i i i}
-      (ClosedModalities.In@{u a i} O X)
-      (IsNull (acc_gen O) X).
-  Proof.
-    split.
-    - intros X_inO u.
-      pose (X_inO u).
-      apply ooextendable_contr; exact _.
-    - intros ext u.
-      exists ((fst (ext u 1%nat) Empty_rec).1 tt); intros x.
-      unfold const in ext.
-      exact ((fst (snd (ext u 2) (fst (ext u 1%nat) Empty_rec).1
-                       (fun _ => x)) (Empty_ind _)).1 tt).
-  Defined.
+(*   Definition inO_iff_isnull *)
+(*              (O : ClosedModalities.Modality@{u a}) (X : Type@{i}) *)
+(*   : iff@{i i i} *)
+(*       (ClosedModalities.In@{u a i} O X) *)
+(*       (IsNull (acc_gen O) X). *)
+(*   Proof. *)
+(*     split. *)
+(*     - intros X_inO u. *)
+(*       pose (X_inO u). *)
+(*       apply ooextendable_contr; exact _. *)
+(*     - intros ext u. *)
+(*       exists ((fst (ext u 1%nat) Empty_rec).1 tt); intros x. *)
+(*       unfold const in ext. *)
+(*       exact ((fst (snd (ext u 2) (fst (ext u 1%nat) Empty_rec).1 *)
+(*                        (fun _ => x)) (Empty_ind _)).1 tt). *)
+(*   Defined. *)
 
-End Accessible_ClosedModalities.
+(* End Accessible_ClosedModalities. *)
 
-(** In fact, it is topological, and therefore (assuming univalence) lex.  As for topological modalities generally, we don't need to declare these as global instances, but we prove them here as local instances for exposition. *)
-Module Import ClT :=
-  Topological_Modalities_Theory
-    ClosedModalities
-    Accessible_ClosedModalities.
+(* (** In fact, it is topological, and therefore (assuming univalence) lex.  As for topological modalities generally, we don't need to declare these as global instances, but we prove them here as local instances for exposition. *) *)
+(* Module Import ClT := *)
+(*   Topological_Modalities_Theory *)
+(*     ClosedModalities *)
+(*     Accessible_ClosedModalities. *)
 
-Local Instance topological_closed (O : Modality)
-: Topological O.
-Proof.
-  exact _.
-Defined.
+(* Local Instance topological_closed (O : Modality) *)
+(* : Topological O. *)
+(* Proof. *)
+(*   exact _. *)
+(* Defined. *)
 
-Local Instance lex_closed `{Univalence} (O : Modality)
-: Lex O.
-Proof.
-  exact _.
-Defined.
+(* Local Instance lex_closed `{Univalence} (O : Modality) *)
+(* : Lex O. *)
+(* Proof. *)
+(*   exact _. *)
+(* Defined. *)
 
-(** Thus, it also has the following alternative version. *)
-Definition Cl' (U : hProp)
-: Nullification_Modality
-  := Nul (Build_NullGenerators U (fun _ => Empty)).
+(* (** Thus, it also has the following alternative version. *) *)
+(* Definition Cl' (U : hProp) *)
+(* : Nullification_Modality *)
+(*   := Nul (Build_NullGenerators U (fun _ => Empty)). *)

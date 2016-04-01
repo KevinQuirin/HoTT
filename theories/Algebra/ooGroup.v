@@ -15,7 +15,7 @@ Local Open Scope path_scope.
 
 Record ooGroup :=
   { classifying_space : pType@{i} ;
-    isconn_classifying_space : IsConnected@{u a i} 0 classifying_space
+    isconn_classifying_space : IsConnected@{u a i i'} 0 classifying_space
   }.
 
 Global Existing Instance isconn_classifying_space.

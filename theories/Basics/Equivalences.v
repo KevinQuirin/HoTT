@@ -277,15 +277,18 @@ Definition moveL_equiv_V `{IsEquiv A B f} (x : B) (y : A) (p : f y = x)
   : (y = f^-1 x)
   := (eissect f y)^ @ ap (f^-1) p.
 
+Set Printing Universes.
 (** Equivalence preserves contractibility (which of course is trivial under univalence). *)
-Lemma contr_equiv A {B} (f : A -> B) `{IsEquiv A B f} `{Contr A}
-  : Contr B.
+Lemma contr_equiv A {B} (f : A -> B) `{IsEquiv A B f} {H0:IsTrunc@{i i'} -2 A}
+  : IsTrunc@{j j'} -2 B.
 Proof.
   exists (f (center A)).
   intro y.
   apply moveR_equiv_M.
   apply contr.
 Qed.
+
+Unset Printing Notations.
 
 Definition contr_equiv' A {B} `(f : A <~> B) `{Contr A}
   : Contr B

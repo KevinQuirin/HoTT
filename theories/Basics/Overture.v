@@ -479,16 +479,17 @@ Fixpoint nat_to_trunc_index (n : nat) : trunc_index
 
 Coercion nat_to_trunc_index : nat >-> trunc_index.
 
-Fixpoint IsTrunc_internal (n : trunc_index) (A : Type) : Type :=
+Set Printing Universes.
+Fixpoint IsTrunc_internal (n : trunc_index) (A : Type@{i}) : Type@{i'} :=
   match n with
     | -2 => Contr_internal A
-    | n'.+1 => forall (x y : A), IsTrunc_internal n' (x = y)
+    | n'.+1 => forall (x y : A), IsTrunc_internal@{i i'} n' (x = y)
   end.
 
 Arguments IsTrunc_internal n A : simpl nomatch.
 
-Class IsTrunc (n : trunc_index) (A : Type) : Type :=
-  Trunc_is_trunc : IsTrunc_internal n A.
+Class IsTrunc (n : trunc_index) (A : Type@{i}) : Type :=
+  Trunc_is_trunc : IsTrunc_internal@{i i'} n A.
 
 (** We use the priciple that we should always be doing typeclass resolution on truncation of non-equality types.  We try to change the hypotheses and goals so that they never mention something like [IsTrunc n (_ = _)] and instead say [IsTrunc (S n) _].  If you're evil enough that some of your paths [a = b] are n-truncated, but others are not, then you'll have to either reason manually or add some (local) hints with higher priority than the hint below, or generalize your equality type so that it's not a path anymore. *)
 
@@ -496,8 +497,8 @@ Typeclasses Opaque IsTrunc. (* don't auto-unfold [IsTrunc] in typeclass search *
 
 Arguments IsTrunc : simpl never. (* don't auto-unfold [IsTrunc] with [simpl] *)
 
-Global Instance istrunc_paths (A : Type) n `{H : IsTrunc n.+1 A} (x y : A)
-: IsTrunc n (x = y)
+Global Instance istrunc_paths (A : Type@{i}) n {H : IsTrunc@{i i'} n.+1 A} (x y : A)
+: IsTrunc@{i i'} n (x = y)
   := H x y. (* but do fold [IsTrunc] *)
 
 Hint Extern 0 => progress change IsTrunc_internal with IsTrunc in * : typeclass_instances. (* Also fold [IsTrunc_internal] *)

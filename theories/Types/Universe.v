@@ -459,11 +459,13 @@ Defined.
 (** ** Truncations *)
 
 (** Truncatedness of the universe is a subtle question, but with univalence we can conclude things about truncations of certain of its path-spaces. *)
-Global Instance istrunc_paths_Type `{Funext}
-       {n : trunc_index} {A B : Type} `{IsTrunc n.+1 B}
-: IsTrunc n.+1 (A = B).
-Proof.
-  refine (trunc_equiv _ path_universe_uncurried).
-Defined.
+(* Global Instance istrunc_paths_Type `{Funext} *)
+(*        {n : trunc_index} {A: Type@{i}} {B: Type@{j}} {H0:IsTrunc@{j j'} n.+1 B} *)
+(* : IsTrunc@{k k'} n.+1 (A = B). *)
+(* Proof. *)
+(*   Set Printing Universes. *)
+(*   refine (trunc_equiv _ path_universe_uncurried@{i j k}).  *)
+(*   exact (isequiv_path_universe@{i j k k'}). *)
+(* Defined. *)
 
 End Univalence.
