@@ -1,3 +1,8 @@
+KQ: This branch contains (a sketch) a a slighlty improved theory of modalities, where we if `A` lives in a universes `i`, we allow `OA` to live in a possibly higher universe `j >= i`.
+
+
+
+
 [![Build Status](https://api.travis-ci.org/HoTT/HoTT.png?branch=master)](https://travis-ci.org/HoTT/HoTT)
 
 [Homotopy Type Theory](http://homotopytypetheory.org/) is an interpretation of
